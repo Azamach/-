@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Местная аптека</title>
+<style>
+:root {
+  --blue:#0077b8; --blue2:#00a8e8; --darkblue:#006bb3;
+  --bg:#f4fbff; --card:#fff; --text:#17324d; --muted:#5d7184;
+  --shadow:0 8px 24px rgba(0,85,130,.12);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:Arial,sans-serif;color:var(--text);
+  background:linear-gradient(rgba(255,255,255,.82),rgba(255,255,255,.72)),url("images.jpg");
+  background-size:cover;background-attachment:fixed;
+}
+body.dark{--bg:#101820;--card:#1d2730;--text:#f4f8fb;--muted:#c3d0d9;background:#101820}
+a{color:inherit}
+header{
+  background:linear-gradient(135deg,#00a8e8,#006bb3);color:white;text-align:center;
+  padding:42px 20px 50px;animation:appear .7s ease;
+}
+.logo img{width:72px;height:72px;object-fit:cover;border-radius:50%;cursor:pointer;background:white}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.15;margin:18px 0 22px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.nav{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-button,.btn,.theme-btn{
+  display:inline-flex;align-items:center;justify-content:center;border:0;
+  text-decoration:none;font-weight:700;cursor:pointer;border-radius:25px;
+  transition:.25s ease;
+}
+.nav-button{height:42px;padding:0 14px;background:white;color:var(--blue);font-size:14px}
+.btn{padding:12px 18px;background:var(--blue);color:white}
+.btn.small{padding:10px 13px;font-size:14px}
+.theme-btn{padding:11px 15px;background:rgba(255,255,255,.18);color:white}
+.nav-button:hover,.btn:hover,.theme-btn:hover,.filter-btn:hover,.nearest-btn:hover{transform:translateY(-2px)}
+main{max-width:1180px;margin:auto}
+section{animation:appear .7s ease}
+.filters{text-align:center;padding:28px 20px 10px}
+.search-wrap{max-width:760px;margin:0 auto 16px;position:relative}
+.search-input{
+  width:100%;padding:16px 20px;border:2px solid #cceaf7;border-radius:18px;
+  font-size:17px;outline:none;background:var(--card);color:var(--text);box-shadow:var(--shadow)
+}
+.filter-btn,.nearest-btn{border:0;color:white;padding:13px 20px;margin:5px;border-radius:25px;cursor:pointer;font-size:16px;background:var(--blue);transition:.25s}
+.nearest-btn{background:var(--blue2);font-weight:bold}
+#our-pharmacies{scroll-margin-top:20px}
+.section-title{text-align:center;color:var(--blue);font-size:30px;margin:35px 0 20px}
+.about,.advantages,.faq,.how-buy,.pharmacists,.products,.stats,.sale{padding:25px 20px}
+.about,.faq,.how-buy,.pharmacists,.products,.sale{max-width:1050px;margin:20px auto}
+.about-box,.adv-card,.how-card,.pharm-card,.product-card,.faq details,.stat{
+  background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:22px
+}
+.about-box{text-align:center;line-height:1.7}
+.advantages-list,.how-list,.pharm-list,.products-list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px
+}
+.adv-card h3,.pharm-card h3,.product-card h3{color:var(--blue);margin-top:0}
+.faq details{margin:12px 0;border-left:5px solid var(--blue);transition:.25s}
+.faq details:hover{transform:translateY(-2px)}
+.faq summary{font-weight:bold;font-size:17px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.stat{text-align:center}
+.number-line{display:flex;justify-content:center;align-items:center;white-space:nowrap}
+.number{font-size:42px;font-weight:bold;color:var(--blue2);line-height:1}
+.plus{font-size:28px;font-weight:bold;color:var(--blue2);margin-left:3px}
+.pharm-card{text-align:center}
+.cards-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px;padding:20px
+}
+.card{
+  background:var(--card);color:var(--text);padding:20px;border-radius:20px;
+  box-shadow:var(--shadow);transition:.3s;display:flex;flex-direction:column;
+  min-height:255px
+}
+.card:hover{transform:translateY(-6px)}
+.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.city-label{display:inline-block;color:var(--blue);font-size:14px;font-weight:bold;margin-bottom:5px}
+.card h3{margin:0;font-size:21px}
+.hours{color:var(--muted);font-weight:600}
+.phone{font-weight:bold;text-decoration:none;margin-bottom:12px}
+.card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.fav-btn{border:0;background:#ffc107;color:#382800;padding:10px 13px;border-radius:20px;cursor:pointer;font-weight:bold}
+.status{font-weight:bold;white-space:nowrap;font-size:13px}
+.open{color:#00a86b;animation:pulse 1.5s infinite}
+.closed{color:#e53935}
+#map{width:100%;height:500px;border-radius:20px;overflow:hidden;margin-top:20px;box-shadow:var(--shadow)}
+.sale{text-align:center;background:rgba(229,246,255,.92);border-radius:25px}
+body.dark .sale{background:#1d3340}
+.ai-side-button{
+ position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:999;
+ background:var(--darkblue);color:white;padding:15px 11px;border-radius:15px 0 0 15px;
+ cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.2)
+}
+#ai-window{
+ display:none;position:fixed;right:20px;bottom:20px;width:min(360px,calc(100vw - 30px));
+ background:var(--card);color:var(--text);border-radius:18px;box-shadow:0 8px 35px rgba(0,0,0,.3);
+ z-index:1000;overflow:hidden
+}
+.ai-title{background:var(--darkblue);color:white;padding:15px;font-weight:bold}
+.ai-title span{float:right;cursor:pointer}
+#ai-messages{padding:15px;max-height:280px;overflow:auto;line-height:1.5}
+.ai-input-row{display:flex;gap:7px;padding:12px}
+#ai-text{flex:1;min-width:0;padding:12px;border:1px solid #ccdbe5;border-radius:12px}
+.ai-input-row button{background:var(--blue);color:white;border:0;border-radius:12px;padding:0 14px;cursor:pointer}
+.ai-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
+.ai-quick button{border:0;background:#e8f6fc;color:var(--blue);border-radius:15px;padding:7px 10px;cursor:pointer}
+body.dark .ai-quick button{background:#293b46;color:#8bd7ff}
+.footer{
+ background:var(--darkblue);color:white;padding:35px 20px;margin-top:45px;
+ display:flex;justify-content:center;align-items:center;gap:15px;flex-wrap:wrap
+}
+.footer-btn{background:white;color:var(--darkblue)!important;padding:12px 20px;border-radius:25px;text-decoration:none;font-weight:bold}
+@keyframes appear{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes pulse{50%{opacity:.55}}
+@media(max-width:600px){
+ .cards-grid{grid-template-columns:1fr;padding:12px}
+ .card-actions .btn.small,.fav-btn{flex:1}
+ #map{height:390px}
+ h1{font-size:29px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="showAbout()">
+    <img src="Логотип 3.2.png" alt="Логотип Местной аптеки">
+  </div>
+  <h1>ВРЕМЯ МОЖНО КУПИТЬ,<br>ОНО ПРОДАЁТСЯ У НАС!</h1>
+  <nav class="nav">
+    <a href="#our-pharmacies" class="nav-button">💊 Аптеки</a>
+    <a href="#faq" class="nav-button">🤔 Частые вопросы</a>
+    <a href="#sale" class="nav-button">🏷️ Акции + 💙 Поддержка</a>
+    <a class="nav-button" href="https://t.me/mestnaia_apteka" target="_blank" rel="noopener">📲 Telegram</a>
+    <button class="theme-btn" onclick="toggleTheme()" type="button">🌙 Тёмная тема</button>
+  </nav>
+</header>
+
+<main>
+<section class="filters">
+  <div class="search-wrap">
+    <input id="search" class="search-input" type="search" placeholder="🔎 Найти аптеку по адресу, городу или телефону..." oninput="searchCards()">
+  </div>
+  <button class="filter-btn" onclick="filterCards('all')">Все</button>
+  <button class="filter-btn" onclick="filterCards('gel')">Геленджик</button>
+  <button class="filter-btn" onclick="filterCards('kab')">Кабардинка</button>
+  <button class="filter-btn" onclick="filterCards('div')">Дивноморское</button>
+  <button class="nearest-btn" onclick="findNearest()">📍 Ближайшая аптека</button>
+</section>
+
+<section class="about">
+  <h2 class="section-title">О нас</h2>
+  <div class="about-box">
+    Сеть аптек «Местная аптека» — забота о здоровье каждый день.<br>
+    10 аптек в Геленджике, Дивноморском и Кабардинке.<br>
+    Наши фармацевты всегда готовы помочь и подсказать.
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <h2 class="section-title">❓ Частые вопросы</h2>
+  <details><summary>Есть ли бонусная карта?</summary><p>Да, во всех наших аптеках действует бонусная программа.</p></details>
+  <details><summary>Можно ли оплатить картой?</summary><p>Да, мы принимаем банковские карты и наличные.</p></details>
+  <details><summary>Можно ли заказать лекарство?</summary><p>Если препарат доступен для заказа, мы постараемся привезти его в ближайшую аптеку.</p></details>
+  <details><summary>Как узнать наличие товара?</summary><p>Позвоните в нужную аптеку.</p></details>
+</section>
+
+<section class="advantages">
+  <h2 class="section-title">Почему выбирают нас</h2>
+  <div class="advantages-list">
+    <div class="adv-card"><h3>💊 10 аптек рядом</h3><p>Удобно найти аптеку в вашем районе.</p></div>
+    <div class="adv-card"><h3>👩‍⚕️ Опытные фармацевты и провизоры</h3><p>Наши специалисты всегда готовы помочь и подсказать.</p></div>
+    <div class="adv-card"><h3>🕒 Работаем каждый день</h3><p>Заботимся о вашем здоровье ежедневно.</p></div>
+    <div class="adv-card"><h3>💚 17 лет заботы</h3><p>Опыт, которому доверяют наши жители и гости города.</p></div>
+  </div>
+</section>
+
+<section class="how-buy">
+  <h2 class="section-title">🛒 Как купить?</h2>
+  <div class="how-list">
+    <div class="how-card"><h3>1️⃣ Найдите аптеку</h3><p>Выберите удобный адрес рядом с вами.</p></div>
+    <div class="how-card"><h3>2️⃣ Позвоните</h3><p>Наши фармацевты помогут и подскажут.</p></div>
+    <div class="how-card"><h3>3️⃣ Заберите товар</h3><p>Приходите в выбранную аптеку.</p></div>
+  </div>
+  <h2 class="section-title">Наши аптеки на карте</h2>
+  <div id="map"></div>
+</section>
+
+<section class="pharmacists">
+  <h2 class="section-title">👩‍⚕️ Наши фармацевты</h2>
+  <p>Наши специалисты — опытные сотрудники, которые всегда готовы помочь и ответить на вопросы.</p>
+  <div class="pharm-list">
+    <div class="pharm-card"><h3>💊 Опыт и знания</h3><p>Наши фармацевты постоянно совершенствуют свои знания.</p></div>
+    <div class="pharm-card"><h3>💚 Забота о клиентах</h3><p>Внимательное отношение к каждому.</p></div>
+    <div class="pharm-card"><h3>🤝 Помощь и консультация</h3><p>Подскажем и поможем сделать выбор.</p></div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat"><div class="number-line"><span class="number" data-target="17">0</span></div><p>Лет вместе</p></div>
+  <div class="stat"><div class="number-line"><span class="number" data-target="10">0</span></div><p>Аптек</p></div>
+  <div class="stat"><div class="number-line"><span class="number" data-target="30">0</span></div><p>Лучших фармацевтов и провизоров</p></div>
+  <div class="stat"><div class="number-line"><span class="number" data-target="3000000">0</span><span class="plus">+</span></div><p>Покупателей</p></div>
+</section>
+
+<section id="our-pharmacies">
+  <h2 class="section-title">💊 Наши аптеки</h2>
+  <div class="cards-grid">
+
+<article class="card gel" data-open="08:00" data-close="22:00"
+  data-search="геленджик ул. туристическая, 21г +7 938 540-08-98"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Туристическая, 21г</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–22:00</p>
+  <a class="phone" href="tel:+79385400898">📞 +7 938 540-08-98</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTutbULd" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/22388350214/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="24:00"
+  data-search="геленджик ул. просторная, 33 +7 929 839-40-57"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Просторная, 33</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–00:00</p>
+  <a class="phone" href="tel:+79298394057">📞 +7 929 839-40-57</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTutjT7D" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/47767047011/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="21:00"
+  data-search="геленджик ул. маршала жукова, 3,корп.12 +7 928 248-10-01"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Маршала Жукова, 3,корп.12</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–21:00</p>
+  <a class="phone" href="tel:+79282481001">📞 +7 928 248-10-01</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTutrB2M" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/243638493956/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="22:00"
+  data-search="геленджик ул. кирова, 51а +7 952 862-29-37"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Кирова, 51а</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–22:00</p>
+  <a class="phone" href="tel:+79528622937">📞 +7 952 862-29-37</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTutzHib" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/63813581344/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="22:00"
+  data-search="геленджик ул. крымская, 19 +7 928 247-98-09"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Крымская, 19</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–22:00</p>
+  <a class="phone" href="tel:+79282479809">📞 +7 928 247-98-09</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxEMjK" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/226573006133/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="21:00"
+  data-search="геленджик ул. тургенева, 24а +7 928 231-50-05"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Тургенева, 24а</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–21:00</p>
+  <a class="phone" href="tel:+79282315005">📞 +7 928 231-50-05</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxMFpm" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/190359283965/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card gel" data-open="08:00" data-close="21:00"
+  data-search="геленджик ул. пограничная, 4 +7 929 827-70-07"
+  data-city="Геленджик">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Геленджик</span>
+      <h3>ул. Пограничная, 4</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–21:00</p>
+  <a class="phone" href="tel:+79298277007">📞 +7 929 827-70-07</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxY0oC" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/190359283965/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card div" data-open="08:00" data-close="22:00"
+  data-search="дивноморское ул. горная, 31а +7 929 829-87-10"
+  data-city="Дивноморское">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Дивноморское</span>
+      <h3>ул. Горная, 31а</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–22:00</p>
+  <a class="phone" href="tel:+79298298710">📞 +7 929 829-87-10</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxeN7J" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/78109403468/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card div" data-open="08:00" data-close="22:00"
+  data-search="дивноморское ул. кирова, 20в +7 938 554-40-04"
+  data-city="Дивноморское">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Дивноморское</span>
+      <h3>ул. Кирова, 20в</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: 08:00–22:00</p>
+  <a class="phone" href="tel:+79385544004">📞 +7 938 554-40-04</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxq4ZH" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/139545041548/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+
+<article class="card kab" data-open="00:00" data-close="24:00"
+  data-search="кабардинка ул. революционная, 92 +7 938 407-12-12"
+  data-city="Кабардинка">
+  <div class="card-top">
+    <div>
+      <span class="city-label">Кабардинка</span>
+      <h3>ул. Революционная, 92</h3>
+    </div>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <p class="hours">🕒 Ежедневно: круглосуточно</p>
+  <a class="phone" href="tel:+79384071212">📞 +7 938 407-12-12</a>
+  <div class="card-actions">
+    <a class="btn small" href="https://yandex.ru/maps/-/CTuxJVoo" target="_blank" rel="noopener">🗺️ Маршрут</a>
+    <button class="fav-btn" onclick="addFavorite(this)" type="button">⭐ В избранное</button>
+    <a class="btn small" href="https://yandex.com/maps/org/mestnaia_apteka/22709173794/reviews/" target="_blank" rel="noopener">⭐ Отзывы</a>
+  </div>
+</article>
+  </div>
+</section>
+
+<section class="sale" id="sale">
+  <h2 class="section-title">🎁 Акции</h2>
+  <p>Новости, скидки и выгодные предложения ждут вас в нашем Telegram-канале.</p>
+  <a class="btn" href="https://t.me/mestnaia_apteka" target="_blank" rel="noopener">📲 Перейти в Telegram</a>
+</section>
+
+<section class="products">
+  <h2 class="section-title">💊 Популярные товары</h2>
+  <div class="products-list">
+    <div class="product-card"><h3>Витамины</h3><p>Популярные комплексы для поддержки организма.</p></div>
+    <div class="product-card"><h3>Средства от простуды</h3><p>Препараты для сезона простуд.</p></div>
+    <div class="product-card"><h3>Тонометры</h3><p>Контроль давления дома.</p></div>
+    <div class="product-card"><h3>Красота и уход</h3><p>Средства для ухода за собой.</p></div>
+  </div>
+</section>
+</main>
+
+<div class="ai-side-button" onclick="openAI()">🤖 Помощник</div>
+<div id="ai-window">
+  <div class="ai-title">🤖 Помощник «Местная аптека» <span onclick="closeAI()">✖</span></div>
+  <div id="ai-messages">Здравствуйте! 👋<br>Я помогу найти аптеку, адрес, телефон, часы работы или карту.</div>
+  <div class="ai-quick">
+    <button onclick="quickAI('ближайшая аптека')">📍 Ближайшая</button>
+    <button onclick="quickAI('кабардинка')">Кабардинка</button>
+    <button onclick="quickAI('дивноморское')">Дивноморское</button>
+    <button onclick="quickAI('карта')">🗺️ Карта</button>
+  </div>
+  <div class="ai-input-row">
+    <input id="ai-text" placeholder="Напишите вопрос..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button onclick="sendAI()">Отправить</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>💙 Разработчик</span>
+  <a class="footer-btn" href="tel:+79649030707">📞 8 964 903-07-07</a>
+  <a class="footer-btn" href="https://t.me/AsmirPro" target="_blank" rel="noopener">💬 Telegram</a>
+</footer>
+
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+<script>
+const pharmacies = [
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Туристическая, 21г",
+    "phone": "+7 938 540-08-98",
+    "tel": "+79385400898",
+    "lat": 44.589621,
+    "lng": 38.042173,
+    "hours": "🕒 Ежедневно: 08:00–22:00",
+    "route": "https://yandex.ru/maps/-/CTutbULd",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/22388350214/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Просторная, 33",
+    "phone": "+7 929 839-40-57",
+    "tel": "+79298394057",
+    "lat": 44.582263,
+    "lng": 37.989473,
+    "hours": "🕒 Ежедневно: 08:00–00:00",
+    "route": "https://yandex.ru/maps/-/CTutjT7D",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/47767047011/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Маршала Жукова, 3,корп.12",
+    "phone": "+7 928 248-10-01",
+    "tel": "+79282481001",
+    "lat": 44.604517,
+    "lng": 38.031819,
+    "hours": "🕒 Ежедневно: 08:00–21:00",
+    "route": "https://yandex.ru/maps/-/CTutrB2M",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/243638493956/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Кирова, 51а",
+    "phone": "+7 952 862-29-37",
+    "tel": "+79528622937",
+    "lat": 44.561063,
+    "lng": 38.082774,
+    "hours": "🕒 Ежедневно: 08:00–22:00",
+    "route": "https://yandex.ru/maps/-/CTutzHib",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/63813581344/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Крымская, 19",
+    "phone": "+7 928 247-98-09",
+    "tel": "+79282479809",
+    "lat": 44.549702,
+    "lng": 38.061125,
+    "hours": "🕒 Ежедневно: 08:00–22:00",
+    "route": "https://yandex.ru/maps/-/CTuxEMjK",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/226573006133/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Тургенева, 24а",
+    "phone": "+7 928 231-50-05",
+    "tel": "+79282315005",
+    "lat": 44.572112,
+    "lng": 38.083637,
+    "hours": "🕒 Ежедневно: 08:00–21:00",
+    "route": "https://yandex.ru/maps/-/CTuxMFpm",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/190359283965/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Геленджик",
+    "address": "ул. Пограничная, 4",
+    "phone": "+7 929 827-70-07",
+    "tel": "+79298277007",
+    "lat": 44.57783,
+    "lng": 38.020871,
+    "hours": "🕒 Ежедневно: 08:00–21:00",
+    "route": "https://yandex.ru/maps/-/CTuxY0oC",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/190359283965/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Дивноморское",
+    "address": "ул. Горная, 31а",
+    "phone": "+7 929 829-87-10",
+    "tel": "+79298298710",
+    "lat": 44.5005,
+    "lng": 38.142691,
+    "hours": "🕒 Ежедневно: 08:00–22:00",
+    "route": "https://yandex.ru/maps/-/CTuxeN7J",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/78109403468/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Дивноморское",
+    "address": "ул. Кирова, 20в",
+    "phone": "+7 938 554-40-04",
+    "tel": "+79385544004",
+    "lat": 44.500899,
+    "lng": 38.133322,
+    "hours": "🕒 Ежедневно: 08:00–22:00",
+    "route": "https://yandex.ru/maps/-/CTuxq4ZH",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/139545041548/reviews/"
+  },
+  {
+    "name": "Местная аптека",
+    "city": "Кабардинка",
+    "address": "ул. Революционная, 92",
+    "phone": "+7 938 407-12-12",
+    "tel": "+79384071212",
+    "lat": 44.652301,
+    "lng": 37.93742,
+    "hours": "🕒 Ежедневно: круглосуточно",
+    "route": "https://yandex.ru/maps/-/CTuxJVoo",
+    "review": "https://yandex.com/maps/org/mestnaia_apteka/22709173794/reviews/"
+  }
+];
+
+function filterCards(city) {
+  const cards = document.querySelectorAll(".card");
+  cards.forEach((card,index) => {
+    const show = city === "all" || card.classList.contains(city);
+    card.style.display = show ? "flex" : "none";
+    if(show) {
+      card.style.opacity = "0";
+      card.style.transform = "translateY(20px)";
+      setTimeout(() => {
+        card.style.transition = "opacity .5s ease, transform .5s ease";
+        card.style.opacity = "1";
+        card.style.transform = "translateY(0)";
+      }, index * 80);
+    }
+  });
+  setTimeout(() => document.getElementById("our-pharmacies").scrollIntoView({behavior:"smooth",block:"start"}),100);
+}
+
+function searchCards() {
+  const query = document.getElementById("search").value.toLowerCase().trim();
+  document.querySelectorAll(".card").forEach(card => {
+    const match = !query || card.dataset.search.includes(query);
+    card.style.display = match ? "flex" : "none";
+    if(match) {
+      card.style.opacity="1";
+      card.style.transform="translateY(0)";
+    }
+  });
+}
+
+function updateStatuses() {
+  const now = new Date();
+  const minutes = now.getHours()*60 + now.getMinutes();
+  document.querySelectorAll(".card").forEach(card => {
+    const [oh,om] = card.dataset.open.split(":").map(Number);
+    const [ch,cm] = card.dataset.close.split(":").map(Number);
+    const open = oh*60+om, close=ch*60+cm;
+    const status=card.querySelector(".status");
+    const isOpen = card.dataset.close === "24:00" || (open <= minutes && minutes < close);
+    status.textContent=isOpen ? "🟢 Сейчас открыто" : "🔴 Сейчас закрыто";
+    status.className="status "+(isOpen ? "open":"closed");
+  });
+}
+updateStatuses();
+setInterval(updateStatuses,60000);
+
+function toggleTheme() { document.body.classList.toggle("dark"); }
+
+function addFavorite(btn) {
+  btn.textContent = btn.textContent.includes("В избранном") ? "⭐ В избранное" : "⭐ В избранном";
+}
+
+const counters=document.querySelectorAll(".number");
+counters.forEach(counter=>{
+  const target=Number(counter.dataset.target);
+  let count=0;
+  const step=Math.max(1,Math.ceil(target/80));
+  const update=()=>{
+    count=Math.min(target,count+step);
+    counter.textContent=count.toLocaleString("ru-RU");
+    if(count<target) requestAnimationFrame(update);
+  };
+  update();
+});
+
+function findNearest() {
+  if(!navigator.geolocation) return alert("Ваш браузер не поддерживает геолокацию.");
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude,lng=pos.coords.longitude;
+    let nearest=null,min=Infinity;
+    pharmacies.forEach(p=>{
+      const d=Math.hypot(lat-p.lat,lng-p.lng);
+      if(d<min){min=d;nearest=p;}
+    });
+    if(nearest) alert(`🏥 Ближайшая аптека\n\n📍 ${nearest.city}, ${nearest.address}\n📞 ${nearest.phone}\n\n🕒 ${nearest.hours}`);
+  },()=>alert("Не удалось определить ваше местоположение."));
+}
+
+function openAI() { document.getElementById("ai-window").style.display="block"; }
+function closeAI() { document.getElementById("ai-window").style.display="none"; }
+function quickAI(text) { document.getElementById("ai-text").value=text; sendAI(); }
+
+function sendAI() {
+  const input=document.getElementById("ai-text");
+  const message=input.value.trim().toLowerCase();
+  if(!message) return;
+  const chat=document.getElementById("ai-messages");
+  chat.innerHTML += `<br><br>👤 Вы: ${escapeHTML(message)}`;
+  let answer="🤖 Не нашёл такой информации. Попробуйте написать город, улицу, «телефон», «карта» или «ближайшая аптека».";
+  if(message.includes("ближай") || message.includes("рядом")) {
+    findNearest();
+    answer="📍 Определяю ближайшую аптеку по геолокации вашего устройства.";
+  } else if(message.includes("кабар")) {
+    answer=pharmacies.filter(p=>p.city==="Кабардинка").map(p=>`📍 ${p.address}<br>📞 ${p.phone}<br>🕒 ${p.hours}`).join("<hr>");
+  } else if(message.includes("дивномор")) {
+    answer=pharmacies.filter(p=>p.city==="Дивноморское").map(p=>`📍 ${p.address}<br>📞 ${p.phone}<br>🕒 ${p.hours}`).join("<hr>");
+  } else if(message.includes("гел") || message.includes("геленджик")) {
+    answer=pharmacies.filter(p=>p.city==="Геленджик").map(p=>`📍 ${p.address}<br>📞 ${p.phone}<br>🕒 ${p.hours}`).join("<hr>");
+  } else if(message.includes("телефон") || message.includes("номер") || message.includes("позвон")) {
+    answer="📞 Телефоны всех аптек указаны в карточках ниже. Напишите название улицы — я помогу найти нужную.";
+  } else if(message.includes("карта") || message.includes("маршрут")) {
+    document.getElementById("map").scrollIntoView({behavior:"smooth"});
+    answer="🗺️ Карта всех аптек находится ниже на странице.";
+  } else if(message.includes("лекар") || message.includes("препарат") || message.includes("болит") || message.includes("доз")) {
+    answer="💙 Я могу помочь найти аптеку, адрес, телефон и часы работы. По вопросам выбора лекарства, диагноза или дозировки лучше обратиться к фармацевту или врачу.";
+  }
+  chat.innerHTML += `<br><br>🤖 ${answer}`;
+  input.value="";
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+}
+
+function showAbout() {
+  alert(`💙 ВСЁ ДЛЯ ВАШЕГО ЗДОРОВЬЯ!\n\n«Местная аптека» — забота о здоровье жителей и гостей Большого Геленджика уже много лет.`);
+}
+
+if(window.ymaps) {
+  ymaps.ready(initMap);
+} else {
+  window.addEventListener("load",()=>{ if(window.ymaps) ymaps.ready(initMap); });
+}
+
+function initMap() {
+  const map = new ymaps.Map("map", {
+    center: [44.562, 38.075],
+    zoom: 11,
+    controls: ["zoomControl", "fullscreenControl"]
+  });
+
+  pharmacies.forEach(p => {
+    map.geoObjects.add(
+      new ymaps.Placemark(
+        [p.lat, p.lng],
+        {
+          balloonContent: `
+            <b>${p.name}</b><br>
+            📍 ${p.city}, ${p.address}<br>
+            📞 <a href="tel:${p.tel}">${p.phone}</a><br>
+            🕒 ${p.hours}<br><br>
+            <a href="${p.route}" target="_blank" rel="noopener">
+              🗺️ Построить маршрут
+            </a>
+          `
+        },
+        {
+          iconLayout: "default#image",
+          iconImageHref: "Логотип 3.1.png",
+          iconImageSize: [44, 44],
+          iconImageOffset: [-22, -22]
+        }
+      )
+    );
+  });
+}</script>
+</body>
+</html>
